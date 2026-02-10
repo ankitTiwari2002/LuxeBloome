@@ -12,6 +12,9 @@ import {
   SheetContent,
   SheetTrigger,
   SheetClose,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
 } from '@/components/ui/sheet';
 import {
   DropdownMenu,
@@ -140,6 +143,10 @@ export function Header() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left">
+                <SheetHeader className="sr-only">
+                  <SheetTitle>Menu</SheetTitle>
+                  <SheetDescription>Main navigation menu</SheetDescription>
+                </SheetHeader>
                 <div className="p-4">
                   <div className="mb-8">
                     <SheetClose asChild>
