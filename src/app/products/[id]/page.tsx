@@ -58,7 +58,7 @@ export default function ProductPage({ params }: ProductPageProps) {
         <Carousel className="w-full">
           <CarouselContent>
             {productImages.map((image, index) => (
-              image && <CarouselItem key={index}>
+              image && <CarouselItem key={image.id}>
                 <Card className="overflow-hidden">
                   <Image
                     src={image.imageUrl}

@@ -59,7 +59,7 @@ export default function Home() {
               Discover our curated collection of high-quality beauty products designed to make you shine.
             </p>
             <Button asChild size="lg" className="mt-8 animate-fade-in-up transition-transform duration-300 hover:scale-105">
-              <Link href="#featured-products">
+              <Link href="/products">
                 Shop Now <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
@@ -164,8 +164,8 @@ export default function Home() {
               className="w-full max-w-4xl mx-auto mt-12"
             >
               <CarouselContent>
-                {reviews.map((review, index) => (
-                  <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+                {reviews.map((review) => (
+                  <CarouselItem key={review.id} className="md:basis-1/2 lg:basis-1/3">
                     <div className="p-1 h-full">
                       <Card className="flex flex-col justify-between h-full shadow-lg">
                         <CardHeader>

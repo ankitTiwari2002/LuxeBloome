@@ -16,9 +16,9 @@ import { cn } from '@/lib/utils';
 
 const navLinks = [
   { href: '/', label: 'Home' },
-  { href: '#featured-products', label: 'Shop' },
-  { href: '#', label: 'About' },
-  { href: '#', label: 'Contact' },
+  { href: '/products', label: 'Shop' },
+  { href: '/about', label: 'About' },
+  { href: '/contact', label: 'Contact' },
 ];
 
 export function Header() {
@@ -32,18 +32,21 @@ export function Header() {
             <Logo />
           </Link>
           <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  'transition-colors hover:text-primary',
-                  pathname === link.href ? 'text-primary' : 'text-muted-foreground'
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = link.href === '/' ? pathname === link.href : pathname.startsWith(link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    'transition-colors hover:text-primary',
+                    isActive ? 'text-primary' : 'text-muted-foreground'
+                  )}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </nav>
         </div>
 
@@ -69,19 +72,21 @@ export function Header() {
                     </SheetClose>
                   </div>
                   <nav className="flex flex-col space-y-4">
-                    {navLinks.map((link) => (
+                    {navLinks.map((link) => {
+                       const isActive = link.href === '/' ? pathname === link.href : pathname.startsWith(link.href);
+                      return(
                       <SheetClose asChild key={link.href}>
                         <Link
                           href={link.href}
                            className={cn(
                             'text-lg font-medium transition-colors hover:text-primary',
-                            pathname === link.href ? 'text-primary' : 'text-foreground'
+                            isActive ? 'text-primary' : 'text-foreground'
                           )}
                         >
                           {link.label}
                         </Link>
                       </SheetClose>
-                    ))}
+                    )})}
                   </nav>
                 </div>
               </SheetContent>
