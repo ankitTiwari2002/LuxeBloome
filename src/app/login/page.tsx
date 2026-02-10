@@ -12,8 +12,8 @@ import {
   signInWithPopup,
   getAdditionalUserInfo,
 } from 'firebase/auth';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { useAuth, useFirestore } from '@/firebase';
+import { doc, serverTimestamp } from 'firebase/firestore';
+import { useAuth, useFirestore, setDocumentNonBlocking } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -88,7 +88,7 @@ export default function LoginPage() {
       if (additionalInfo?.isNewUser) {
         const user = result.user;
         const userDocRef = doc(firestore, 'users', user.uid);
-        await setDoc(userDocRef, {
+        setDocumentNonBlocking(userDocRef, {
           id: user.uid,
           displayName: user.displayName,
           email: user.email,
@@ -97,7 +97,7 @@ export default function LoginPage() {
           signUpMethod: 'google.com',
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
-        });
+        }, { merge: true });
       }
 
       router.push(redirectUrl);
