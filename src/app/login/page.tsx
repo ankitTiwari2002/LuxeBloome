@@ -103,9 +103,13 @@ export default function LoginPage() {
       router.push(redirectUrl);
     } catch (error: any) {
       console.error('Google Sign-In error:', error);
+      let description = 'Could not sign in with Google. Please try again.';
+      if (error.code === 'auth/operation-not-allowed') {
+        description = 'Google Sign-In must be enabled in the Firebase console.';
+      }
       toast({
         title: 'Sign-In Failed',
-        description: 'Could not sign in with Google. Please try again.',
+        description,
         variant: 'destructive',
       });
     } finally {

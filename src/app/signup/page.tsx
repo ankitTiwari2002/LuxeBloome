@@ -128,9 +128,13 @@ export default function SignupPage() {
       router.push(redirectUrl);
     } catch (error: any) {
       console.error('Google Sign-In error:', error);
+      let description = 'Could not sign up with Google. Please try again.';
+      if (error.code === 'auth/operation-not-allowed') {
+        description = 'Google Sign-In must be enabled in the Firebase console.';
+      }
       toast({
         title: 'Sign-Up Failed',
-        description: 'Could not sign up with Google. Please try again.',
+        description,
         variant: 'destructive',
       });
     } finally {
