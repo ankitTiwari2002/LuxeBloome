@@ -30,3 +30,7 @@ export type Bundle = {
   originalPrice: number;
   image: string;
 };
+
+export interface CartItem extends Product {
+  quantity: number;
+}

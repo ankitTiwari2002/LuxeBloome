@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShoppingBag, Menu, LogOut, User as UserIcon } from 'lucide-react';
+import { Menu, LogOut, User as UserIcon } from 'lucide-react';
 import { useUser, useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { Logo } from '@/components/logo';
@@ -24,6 +24,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import { CartDrawer } from './cart-drawer';
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -79,9 +80,7 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" aria-label="Shopping Cart">
-            <ShoppingBag className="h-6 w-6" />
-          </Button>
+          <CartDrawer />
 
           {isUserLoading && <Skeleton className="h-8 w-8 rounded-full" />}
 

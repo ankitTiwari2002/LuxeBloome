@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,6 +8,9 @@ import { Badge } from '@/components/ui/badge';
 import { Product } from '@/lib/types';
 import { ReviewStars } from './review-stars';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useCart } from '@/context/cart-context';
+import { useToast } from '@/hooks/use-toast';
+import { ShoppingCart } from 'lucide-react';
 
 type ProductCardProps = {
   product: Product;
@@ -13,6 +18,16 @@ type ProductCardProps = {
 
 export function ProductCard({ product }: ProductCardProps) {
     const image = PlaceHolderImages.find(p => p.id === product.images[0]);
+    const { addToCart } = useCart();
+    const { toast } = useToast();
+
+    const handleAddToCart = () => {
+        addToCart(product);
+        toast({
+            title: "Added to cart",
+            description: `${product.name} has been added to your cart.`,
+        });
+    }
 
   return (
     <Card className="group overflow-hidden flex flex-col h-full shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
@@ -53,8 +68,9 @@ export function ProductCard({ product }: ProductCardProps) {
                 <p className="text-sm text-muted-foreground line-through">${product.compareAtPrice.toFixed(2)}</p>
             )}
         </div>
-        <Button asChild size="sm" variant="outline">
-            <Link href={`/products/${product.id}`}>View</Link>
+        <Button size="sm" onClick={handleAddToCart}>
+            <ShoppingCart className="mr-2 h-4 w-4" />
+            Add to Cart
         </Button>
       </CardFooter>
     </Card>
