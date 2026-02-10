@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -47,6 +47,8 @@ const formSchema = z.object({
 
 export default function SignupPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectUrl = searchParams.get('redirect') || '/admin';
   const auth = useAuth();
   const firestore = useFirestore();
   const { toast } = useToast();
@@ -85,7 +87,7 @@ export default function SignupPage() {
         updatedAt: serverTimestamp(),
       }, { merge: true });
 
-      router.push('/admin');
+      router.push(redirectUrl);
     } catch (error: any) {
       console.error('Signup error:', error);
       toast({
@@ -123,7 +125,7 @@ export default function SignupPage() {
         }, { merge: true });
       }
 
-      router.push('/admin');
+      router.push(redirectUrl);
     } catch (error: any) {
       console.error('Google Sign-In error:', error);
       toast({

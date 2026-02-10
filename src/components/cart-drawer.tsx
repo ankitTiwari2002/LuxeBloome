@@ -119,9 +119,11 @@ export function CartDrawer() {
                         <span>${cartTotal.toFixed(2)}</span>
                     </div>
                     <p className="text-xs text-muted-foreground">Shipping and taxes calculated at checkout.</p>
-                    <Button className="w-full" size="lg">
-                        Checkout
-                    </Button>
+                    <SheetClose asChild>
+                      <Button asChild className="w-full" size="lg">
+                        <Link href="/checkout">Checkout</Link>
+                      </Button>
+                    </SheetClose>
                     <SheetClose asChild>
                          <Button variant="link" className="w-full">Continue Shopping</Button>
                     </SheetClose>
