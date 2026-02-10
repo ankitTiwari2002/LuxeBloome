@@ -3,6 +3,7 @@ import { Toaster } from '@/components/ui/toaster';
 import ClientLayout from '@/components/client-layout';
 import { cn } from '@/lib/utils';
 import './globals.css';
+import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
   title: 'LuxeBloom',
@@ -27,7 +28,9 @@ export default function RootLayout({
           'min-h-screen bg-background font-body antialiased'
         )}
       >
-        <ClientLayout>{children}</ClientLayout>
+        <FirebaseClientProvider>
+          <ClientLayout>{children}</ClientLayout>
+        </FirebaseClientProvider>
         <Toaster />
       </body>
     </html>

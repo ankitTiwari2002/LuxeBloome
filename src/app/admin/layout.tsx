@@ -1,3 +1,9 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useUser, useAuth } from '@/firebase';
+import { useRouter } from 'next/navigation';
+import { signOut } from 'firebase/auth';
 import {
   SidebarProvider,
   Sidebar,
@@ -10,22 +16,43 @@ import {
   SidebarInset,
 } from '@/components/ui/sidebar';
 import { Logo } from '@/components/logo';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   LayoutDashboard,
   ShoppingBag,
   Sparkles,
   LogOut,
   Settings,
+  Loader2,
 } from 'lucide-react';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { user, isUserLoading } = useUser();
+  const auth = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.replace('/login');
+    }
+  }, [user, isUserLoading, router]);
+
+  const handleLogout = () => {
+    signOut(auth);
+  };
+
+  if (isUserLoading || !user) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <SidebarProvider>
       <Sidebar>
@@ -35,10 +62,7 @@ export default function AdminLayout({
         <SidebarContent>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton
-                asChild
-                tooltip="Dashboard"
-              >
+              <SidebarMenuButton asChild tooltip="Dashboard">
                 <Link href="/admin">
                   <LayoutDashboard />
                   <span>Dashboard</span>
@@ -46,21 +70,15 @@ export default function AdminLayout({
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton
-                asChild
-                tooltip="Products"
-              >
+              <SidebarMenuButton asChild tooltip="Products">
                 <Link href="/admin/products">
                   <ShoppingBag />
                   <span>Products</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
-             <SidebarMenuItem>
-              <SidebarMenuButton
-                asChild
-                tooltip="AI Sidekick"
-              >
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="AI Sidekick">
                 <Link href="/admin/ai-sidekick">
                   <Sparkles />
                   <span>AI Sidekick</span>
@@ -71,14 +89,14 @@ export default function AdminLayout({
         </SidebarContent>
         <SidebarFooter>
           <SidebarMenu>
-             <SidebarMenuItem>
+            <SidebarMenuItem>
               <SidebarMenuButton tooltip="Settings">
                 <Settings />
                 <span>Settings</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton tooltip="Logout">
+              <SidebarMenuButton tooltip="Logout" onClick={handleLogout}>
                 <LogOut />
                 <span>Logout</span>
               </SidebarMenuButton>
