@@ -1,0 +1,79 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the LuxeBloom application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "The first name of the user."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The last name of the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address of the user.",
+          "format": "email"
+        },
+        "signUpMethod": {
+          "type": "string",
+          "description": "Method used to sign up (e.g., 'email', 'google', 'facebook')."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user account was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user account was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "firstName",
+        "lastName",
+        "email",
+        "signUpMethod",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profile data. The document ID is the same as the Firebase Auth UID. This structure enables path-based ownership and simplifies security rules.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The Firebase Auth UID of the user."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure is designed to support user authentication and basic user data management for the LuxeBloom application. It prioritizes security and scalability, adhering to the principles of Authorization Independence and Structural Segregation. Since there are no collaborative data or complex relationships, the design focuses on simple path-based ownership for user data.\n\n**Authorization Independence:** Authorization is based solely on `request.auth.uid` and existence checks in roles collections, avoiding any `get()` calls in security rules. The `User` document is stored under `/users/{userId}`, where `{userId}` matches the Firebase Authentication UID. This structure ensures that access control is directly tied to the authenticated user's ID.\n\n**QAPs (Rules are not Filters):** The structure facilitates secure `list` operations by segregating user data into individual user-owned paths. Listing users is not supported, mitigating the risk of unauthorized data exposure. Secure rules can be enforced based on the user's UID.\n\n**Other Considerations:**\n*   Timestamps (`createdAt`, `updatedAt`) are included in the `User` schema to track user creation and modification times. Firestore's server-side timestamps can be used to guarantee accuracy.\n*   The `signUpMethod` field records the authentication provider used, allowing for differentiated handling based on the provider (e.g., additional verification steps for 'password' sign-ups).\n*   This design can be extended to support more complex features, such as user roles or product ownership, by adding relevant collections and denormalizing authorization data as needed."
+  }
+}

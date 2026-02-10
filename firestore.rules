@@ -1,0 +1,110 @@
+/**
+ * This ruleset enforces a strict user-ownership model for the LuxeBloom application.
+ * Each user has complete control over their own profile document, and no user can
+ * access, view, or modify the data of another user. The central principle is
+ * data isolation and privacy.
+ *
+ * Core Philosophy:
+ * A strict user-ownership model where users can only manage their own data. The
+ * design prioritizes privacy and prevents unauthorized data access between users.
+ *
+ * Data Structure:
+ * All user data is stored in a top-level `users` collection. Each user's profile
+ * is a single document within this collection, where the document ID is the user's
+ * unique Firebase Authentication UID (e.g., `/users/{userId}`).
+ *
+ * Key Security Decisions:
+ * - No Public User Listing: Listing the entire `/users` collection is explicitly
+ *   forbidden to prevent enumeration of user data and protect user privacy.
+ * - Strict Ownership: All read and write operations are gated by an ownership
+ *   check, ensuring only the authenticated user matching the document ID can
+ *   access the data.
+ * - Path-Driven Security: The rules rely on the document path (`/users/{userId}`)
+ *   as the primary source of truth for ownership, making the logic simple,
+ *   fast, and secure.
+ *
+ * Denormalization for Authorization:
+ * This design does not currently require denormalization as there are no shared
+ * resources or collaborative features. All authorization decisions are
+ * self-contained within the user's own data path.
+ *
+ * Structural Segregation:
+ * This ruleset does not yet manage public vs. private data. All user data is
+ * considered private and is segregated by user ID in the `/users` collection.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- Helper Functions ---
+
+    /**
+     * Checks if the current request is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Checks if the currently authenticated user's UID matches the provided userId.
+     * This is the core function for verifying ownership of a document.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * Checks for ownership on an existing resource.
+     * Used for update and delete operations to prevent modifying non-existent documents.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    /**
+     * Validates required authorization fields when a new user document is created.
+     * Ensures the internal 'id' field in the document data matches the document's ID
+     * (which is the user's UID), enforcing relational integrity.
+     */
+    function isCreatingValidUser(userId) {
+      return request.resource.data.id == userId;
+    }
+
+    /**
+     * Validates that critical, immutable fields are not changed during an update.
+     * Ensures the user's unique 'id' cannot be reassigned, protecting the link
+     * between the document and the authenticated user.
+     */
+    function isUpdatingValidUser() {
+      return request.resource.data.id == resource.data.id;
+    }
+
+
+    // --- Collection Rules ---
+
+    /**
+     * @description Controls access to user profile documents. A user can create, read,
+     *              update, and delete their own document, but cannot access anyone else's.
+     *              Listing the entire collection is forbidden to protect user privacy.
+     * @path /users/{userId}
+     * @allow (create) An authenticated user creating their own profile document for the first time.
+     *        `auth.uid: 'user123'`, `create /users/user123` with `{ id: 'user123', ... }`
+     * @deny  (get) An authenticated user trying to read another user's profile.
+     *        `auth.uid: 'user456'`, `get /users/user123`
+     * @deny  (list) Any user attempting to list all documents in the 'users' collection.
+     *        `auth.uid: 'user123'`, `list /users`
+     * @principle Restricts access to a user's own data tree and enforces relational integrity
+     *            by ensuring the document's internal ID matches the path UID.
+     */
+    match /users/{userId} {
+      // READS: A user can get their own document, but cannot list the users collection.
+      allow get: if isOwner(userId);
+      allow list: if false;
+
+      // WRITES: A user can manage their own document lifecycle.
+      allow create: if isOwner(userId) && isCreatingValidUser(userId);
+      allow update: if isExistingOwner(userId) && isUpdatingValidUser();
+      allow delete: if isExistingOwner(userId);
+    }
+  }
+}
