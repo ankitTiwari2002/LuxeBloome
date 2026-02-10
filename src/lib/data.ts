@@ -1,0 +1,132 @@
+import { Product, Review, Bundle } from './types';
+
+export const products: Product[] = [
+  {
+    id: 'prod-1',
+    name: 'Radiant Glow Serum',
+    description: 'A lightweight serum that brightens and evens skin tone. Packed with Vitamin C and hyaluronic acid for a hydrated, radiant complexion.',
+    price: 45.00,
+    compareAtPrice: 60.00,
+    images: ['product-1-1', 'product-1-2'],
+    rating: 4.8,
+    reviewCount: 124,
+    tags: ['serum', 'brightening', 'hydrating'],
+    category: 'Skincare',
+  },
+  {
+    id: 'prod-2',
+    name: 'Hydrating Rosewater Mist',
+    description: 'A refreshing facial mist to soothe and hydrate skin throughout the day. Infused with pure rosewater and aloe vera.',
+    price: 28.00,
+    images: ['product-2-1', 'product-2-2'],
+    rating: 4.9,
+    reviewCount: 210,
+    tags: ['mist', 'hydrating', 'soothing'],
+    category: 'Skincare',
+  },
+  {
+    id: 'prod-3',
+    name: 'Velvet Touch Night Cream',
+    description: 'A rich, nourishing cream that works overnight to repair and rejuvenate. Wake up to smoother, firmer-looking skin.',
+    price: 55.00,
+    images: ['product-3-1', 'product-3-2'],
+    rating: 4.7,
+    reviewCount: 98,
+    tags: ['night cream', 'anti-aging', 'nourishing'],
+    category: 'Skincare',
+  },
+  {
+    id: 'prod-4',
+    name: 'Purifying Clay Mask',
+    description: 'A deep-cleansing mask that draws out impurities and minimizes the appearance of pores. Formulated with kaolin clay and tea tree oil.',
+    price: 32.00,
+    images: ['product-4-1', 'product-4-2'],
+    rating: 4.6,
+    reviewCount: 150,
+    tags: ['mask', 'purifying', 'acne-prone'],
+    category: 'Treatments',
+  },
+  {
+    id: 'prod-5',
+    name: 'Luminous Eye Cream',
+    description: 'A targeted treatment to reduce dark circles and puffiness. Contains caffeine and peptides to brighten and firm the delicate eye area.',
+    price: 40.00,
+    images: ['product-5-1', 'product-5-2'],
+    rating: 4.8,
+    reviewCount: 188,
+    tags: ['eye cream', 'brightening', 'anti-fatigue'],
+    category: 'Skincare',
+    variants: [{ name: 'Size', options: ['15ml', '30ml'] }],
+  },
+];
+
+export const reviews: Review[] = [
+  {
+    id: 'rev-1',
+    productId: 'prod-1',
+    author: 'Jessica L.',
+    rating: 5,
+    title: 'Holy Grail Serum!',
+    body: "I've been using this for a month and my skin has never looked better. My dark spots are fading and I have a natural glow!",
+    date: 'June 15, 2024',
+  },
+  {
+    id: 'rev-2',
+    productId: 'prod-2',
+    author: 'Emily R.',
+    rating: 5,
+    title: 'So Refreshing',
+    body: 'I keep this on my desk and spritz it throughout the day. It smells amazing and keeps my skin from feeling dry.',
+    date: 'June 12, 2024',
+  },
+  {
+    id: 'rev-3',
+    productId: 'prod-3',
+    author: 'Sarah P.',
+    rating: 5,
+    title: 'Woke up to baby soft skin',
+    body: "This night cream is so luxurious without being greasy. My skin feels incredibly soft and plump in the morning.",
+    date: 'June 10, 2024',
+  },
+  {
+    id: 'rev-4',
+    productId: 'prod-1',
+    author: 'Megan B.',
+    rating: 4,
+    title: 'Great product',
+    body: "Really enjoying this serum. It's gentle on my sensitive skin and provides a nice glow. A bit pricey but worth it.",
+    date: 'June 8, 2024',
+  },
+  {
+    id: 'rev-5',
+    productId: 'prod-4',
+    author: 'Chloe T.',
+    rating: 5,
+    title: 'Pores are gone!',
+    body: 'This mask is a miracle worker for my oily, congested skin. My pores look so much smaller after just one use.',
+    date: 'June 5, 2024',
+  },
+    {
+    id: 'rev-6',
+    productId: 'prod-5',
+    author: 'Olivia M.',
+    rating: 5,
+    title: 'Finally look awake!',
+    body: "This is the only eye cream that has made a noticeable difference in my dark circles. I look so much more rested!",
+    date: 'June 2, 2024',
+  },
+];
+
+export const bundles: Bundle[] = [
+  {
+    id: 'bundle-1',
+    title: 'The Ultimate Glow Kit',
+    productIds: ['prod-1', 'prod-3', 'prod-5'],
+    price: 120.00,
+    originalPrice: 140.00,
+    image: 'bundle-1',
+  },
+];
+
+export const getProductById = (id: string): Product | undefined => products.find(p => p.id === id);
+export const getReviewsByProductId = (productId: string): Review[] => reviews.filter(r => r.productId === productId);
