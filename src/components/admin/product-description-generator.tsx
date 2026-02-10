@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -29,6 +28,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { Label } from '@/components/ui/label';
 
 const formSchema = z.object({
   productName: z.string().min(1, 'Product name is required.'),
@@ -159,7 +159,7 @@ export default function ProductDescriptionGenerator() {
         </form>
       </Form>
       <div className="space-y-4">
-        <FormLabel>Generated Description</FormLabel>
+        <Label>Generated Description</Label>
         <Textarea
           value={generatedDescription}
           readOnly
