@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Menu, LogOut, User as UserIcon, Search } from 'lucide-react';
+import { Menu, LogOut, User as UserIcon, Search, Loader2 } from 'lucide-react';
 import { useUser, useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { Logo } from '@/components/logo';
@@ -22,10 +22,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Popover,
+  PopoverAnchor,
+  PopoverContent,
+} from '@/components/ui/popover';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { CartDrawer } from './cart-drawer';
+import { useState, useEffect } from 'react';
+import { Product } from '@/lib/types';
+import { getAllProducts } from '@/lib/api';
+import Image from 'next/image';
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -39,18 +48,68 @@ export function Header() {
   const router = useRouter();
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
+  
+  const [searchQuery, setSearchQuery] = useState('');
+  const [suggestions, setSuggestions] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuggestionsVisible, setIsSuggestionsVisible] = useState(false);
 
   const handleLogout = () => {
     signOut(auth);
   };
-  
-  const handleSearch = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const query = formData.get('query') as string;
-    if (query?.trim()) {
-      router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  useEffect(() => {
+    if (searchQuery.length < 2) {
+      setSuggestions([]);
+      setIsSuggestionsVisible(false);
+      return;
     }
+
+    setIsLoading(true);
+    const timerId = setTimeout(async () => {
+      try {
+        const allProducts = await getAllProducts();
+        const lowercasedQuery = searchQuery.toLowerCase();
+        const results = allProducts
+          .filter(
+            (product) =>
+              product.name.toLowerCase().includes(lowercasedQuery) ||
+              product.description.toLowerCase().includes(lowercasedQuery) ||
+              product.category.toLowerCase().includes(lowercasedQuery)
+          )
+          .slice(0, 5); // Limit suggestions
+
+        setSuggestions(results);
+        setIsSuggestionsVisible(true);
+      } catch (error) {
+        console.error("Failed to fetch search suggestions:", error);
+        setSuggestions([]);
+        setIsSuggestionsVisible(false);
+      } finally {
+        setIsLoading(false);
+      }
+    }, 300); // 300ms debounce delay
+
+    return () => {
+      clearTimeout(timerId);
+    };
+  }, [searchQuery]);
+
+  const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setIsSuggestionsVisible(false);
+    }
+  };
+
+  const closeAndClearSearch = () => {
+    setIsSuggestionsVisible(false);
+    setSearchQuery('');
   };
 
   const getInitials = (name?: string | null) => {
@@ -91,10 +150,67 @@ export function Header() {
         </div>
         
         <div className="flex-1 flex justify-center px-4 hidden md:flex">
-          <form onSubmit={handleSearch} className="relative w-full max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input name="query" placeholder="Search for products..." className="pl-10" />
-          </form>
+          <Popover open={isSuggestionsVisible && searchQuery.length >= 2} onOpenChange={setIsSuggestionsVisible}>
+            <PopoverAnchor asChild>
+              <form onSubmit={handleSearchSubmit} className="relative w-full max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  name="query"
+                  placeholder="Search for products..."
+                  className="pl-10"
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  autoComplete="off"
+                />
+              </form>
+            </PopoverAnchor>
+            <PopoverContent align="start" className="w-[var(--radix-popover-trigger-width)] mt-1 p-0">
+              {isLoading && (
+                <div className="p-4 text-center text-sm text-muted-foreground flex items-center justify-center">
+                  <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                  Searching...
+                </div>
+              )}
+              {!isLoading && suggestions.length > 0 && (
+                <div className="flex flex-col">
+                  <div className='flex flex-col gap-1 p-1'>
+                    {suggestions.map((product) => (
+                      <Link
+                        key={product.id}
+                        href={`/products/${product.id}`}
+                        className="flex items-center gap-4 p-2 rounded-sm hover:bg-accent"
+                        onClick={closeAndClearSearch}
+                      >
+                        <Image
+                          src={product.images[0]}
+                          alt={product.name}
+                          width={40}
+                          height={40}
+                          className="rounded-sm object-cover aspect-square"
+                        />
+                        <div className="flex-1 overflow-hidden">
+                          <p className="text-sm font-medium truncate">{product.name}</p>
+                          <p className="text-sm text-primary">${product.price.toFixed(2)}</p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                  <div className="p-1 border-t">
+                    <Button variant="ghost" className="w-full justify-center" asChild>
+                      <Link href={`/search?q=${encodeURIComponent(searchQuery.trim())}`}>
+                        View all results for "{searchQuery}"
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+              )}
+              {!isLoading && suggestions.length === 0 && searchQuery.length >= 2 && (
+                <div className="p-4 text-center text-sm text-muted-foreground">
+                  No results for "{searchQuery}"
+                </div>
+              )}
+            </PopoverContent>
+          </Popover>
         </div>
 
         <div className="flex items-center gap-2">
@@ -167,12 +283,68 @@ export function Header() {
                     </SheetClose>
                   </div>
                   
-                  <SheetClose asChild>
-                    <form onSubmit={handleSearch} className="relative mb-4">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input name="query" placeholder="Search..." className="pl-10" />
-                    </form>
-                  </SheetClose>
+                  <form onSubmit={handleSearchSubmit} className="relative mb-4">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      name="query"
+                      placeholder="Search..."
+                      className="pl-10"
+                      value={searchQuery}
+                      onChange={handleSearchChange}
+                      autoComplete="off"
+                    />
+                  </form>
+                  {isSuggestionsVisible && searchQuery.length >= 2 && (
+                     <div className="flex flex-col mb-4 -mt-2 border rounded-md">
+                        {isLoading && (
+                            <div className="p-4 text-center text-sm text-muted-foreground flex items-center justify-center">
+                            <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                            Searching...
+                            </div>
+                        )}
+                        {!isLoading && suggestions.length > 0 && (
+                            <div className="flex flex-col">
+                            <div className='flex flex-col gap-1 p-1'>
+                                {suggestions.map((product) => (
+                                <SheetClose asChild key={product.id}>
+                                    <Link
+                                    href={`/products/${product.id}`}
+                                    className="flex items-center gap-4 p-2 rounded-sm hover:bg-accent"
+                                    onClick={closeAndClearSearch}
+                                    >
+                                    <Image
+                                        src={product.images[0]}
+                                        alt={product.name}
+                                        width={40}
+                                        height={40}
+                                        className="rounded-sm object-cover aspect-square"
+                                    />
+                                    <div className="flex-1 overflow-hidden">
+                                        <p className="text-sm font-medium truncate">{product.name}</p>
+                                        <p className="text-sm text-primary">${product.price.toFixed(2)}</p>
+                                    </div>
+                                    </Link>
+                                </SheetClose>
+                                ))}
+                            </div>
+                            <div className="p-1 border-t">
+                                <SheetClose asChild>
+                                <Button variant="ghost" className="w-full justify-center" asChild>
+                                    <Link href={`/search?q=${encodeURIComponent(searchQuery.trim())}`}>
+                                    View all results
+                                    </Link>
+                                </Button>
+                                </SheetClose>
+                            </div>
+                            </div>
+                        )}
+                        {!isLoading && suggestions.length === 0 && searchQuery.length >= 2 && (
+                            <div className="p-4 text-center text-sm text-muted-foreground">
+                            No results for "{searchQuery}"
+                            </div>
+                        )}
+                    </div>
+                  )}
 
                   <nav className="flex flex-col space-y-4">
                     {navLinks.map((link) => {
