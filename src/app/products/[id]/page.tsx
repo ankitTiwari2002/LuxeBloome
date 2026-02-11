@@ -23,13 +23,11 @@ export async function generateStaticParams() {
   }));
 }
 
-type ProductPageProps = {
+export default async function ProductPage({
+  params,
+}: {
   params: { id: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
-};
-
-export default async function ProductPage(props: ProductPageProps) {
-  const { params } = props;
+}) {
   const product = await getProductById(params.id);
 
   if (!product) {
