@@ -5,6 +5,7 @@ import { AnnouncementBar } from '@/components/announcement-bar';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { EmailCapturePopup } from '@/components/email-capture-popup';
+import { AiShoppingAssistant } from '@/components/ai-shopping-assistant';
 
 export default function ClientLayout({
   children,
@@ -25,6 +26,7 @@ export default function ClientLayout({
       <main className="flex-grow">{children}</main>
       <Footer />
       <EmailCapturePopup />
+      <AiShoppingAssistant />
     </div>
   );
 }
