@@ -23,13 +23,7 @@ export async function generateStaticParams() {
   }));
 }
 
-interface ProductPageProps {
-  params: {
-    id: string;
-  };
-}
-
-export default async function ProductPage({ params }: ProductPageProps) {
+export default async function ProductPage({ params }: { params: { id: string } }) {
   const product = await getProductById(params.id);
 
   if (!product) {
