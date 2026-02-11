@@ -16,12 +16,6 @@ import { Separator } from '@/components/ui/separator';
 import { ReviewStars } from '@/components/review-stars';
 import { ProductPurchaseForm } from '@/components/product-purchase-form';
 
-type ProductPageProps = {
-  params: {
-    id: string;
-  };
-};
-
 export async function generateStaticParams() {
   const products = await getAllProducts();
   return products.map((product) => ({
@@ -29,7 +23,7 @@ export async function generateStaticParams() {
   }));
 }
 
-export default async function ProductPage({ params }: ProductPageProps) {
+export default async function ProductPage({ params }: { params: { id: string } }) {
   const product = await getProductById(params.id);
 
   if (!product) {
