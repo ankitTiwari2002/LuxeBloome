@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Product } from '@/lib/types';
 import { ReviewStars } from './review-stars';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useCart } from '@/context/cart-context';
 import { useToast } from '@/hooks/use-toast';
 import { ShoppingCart } from 'lucide-react';
@@ -17,7 +16,7 @@ type ProductCardProps = {
 };
 
 export function ProductCard({ product }: ProductCardProps) {
-    const image = PlaceHolderImages.find(p => p.id === product.images[0]);
+    const imageUrl = product.images[0];
     const { addToCart } = useCart();
     const { toast } = useToast();
 
@@ -33,14 +32,13 @@ export function ProductCard({ product }: ProductCardProps) {
     <Card className="group overflow-hidden flex flex-col h-full shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
       <CardHeader className="p-0 relative">
         <Link href={`/products/${product.id}`} className="block">
-          {image && 
+          {imageUrl && 
             <Image
-                src={image.imageUrl}
+                src={imageUrl}
                 alt={product.name}
                 width={400}
                 height={400}
                 className="w-full h-auto object-cover aspect-square transition-transform duration-300 group-hover:scale-105"
-                data-ai-hint={image.imageHint}
             />
           }
         </Link>

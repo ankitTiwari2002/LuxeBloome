@@ -2,9 +2,8 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import {
   getProductById,
-  getReviewsByProductId,
-  products,
-} from '@/lib/data';
+  getAllProducts,
+} from '@/lib/api';
 import {
   Carousel,
   CarouselContent,
@@ -15,7 +14,6 @@ import {
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { ReviewStars } from '@/components/review-stars';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { ProductPurchaseForm } from '@/components/product-purchase-form';
 
 type ProductPageProps = {
@@ -25,20 +23,20 @@ type ProductPageProps = {
 };
 
 export async function generateStaticParams() {
+  const products = await getAllProducts();
   return products.map((product) => ({
     id: product.id,
   }));
 }
 
-export default function ProductPage({ params }: ProductPageProps) {
-  const product = getProductById(params.id);
+export default async function ProductPage({ params }: ProductPageProps) {
+  const product = await getProductById(params.id);
 
   if (!product) {
     notFound();
   }
-
-  const reviews = getReviewsByProductId(params.id);
-  const productImages = product.images.map(id => PlaceHolderImages.find(p => p.id === id)).filter(Boolean);
+  
+  const productImages = product.images;
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -47,15 +45,14 @@ export default function ProductPage({ params }: ProductPageProps) {
         <Carousel className="w-full">
           <CarouselContent>
             {productImages.map((image, index) => (
-              image && <CarouselItem key={image.id}>
+              <CarouselItem key={index}>
                 <Card className="overflow-hidden">
                   <Image
-                    src={image.imageUrl}
+                    src={image}
                     alt={`${product.name} - image ${index + 1}`}
                     width={600}
                     height={600}
                     className="w-full h-auto object-cover aspect-square"
-                    data-ai-hint={image.imageHint}
                   />
                 </Card>
               </CarouselItem>
@@ -83,31 +80,6 @@ export default function ProductPage({ params }: ProductPageProps) {
 
           <ProductPurchaseForm product={product} />
 
-        </div>
-      </div>
-
-      {/* Reviews Section */}
-      <div className="mt-12 md:mt-20">
-        <h2 className="font-headline text-3xl font-bold text-center">Customer Reviews</h2>
-        <Separator className="my-6" />
-        <div className="space-y-8">
-          {reviews.map(review => (
-            <Card key={review.id} className="shadow-sm">
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-lg">{review.author}</CardTitle>
-                    <p className="text-sm font-bold text-primary pt-1">{review.title}</p>
-                  </div>
-                  <ReviewStars rating={review.rating} />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">"{review.body}"</p>
-                <p className="text-xs text-muted-foreground mt-4">{review.date}</p>
-              </CardContent>
-            </Card>
-          ))}
         </div>
       </div>
     </div>

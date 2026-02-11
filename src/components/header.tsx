@@ -1,20 +1,18 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Menu, LogOut, User as UserIcon } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { Menu, LogOut, User as UserIcon, Search } from 'lucide-react';
 import { useUser, useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Sheet,
   SheetContent,
   SheetTrigger,
   SheetClose,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
 } from '@/components/ui/sheet';
 import {
   DropdownMenu,
@@ -38,11 +36,21 @@ const navLinks = [
 
 export function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
 
   const handleLogout = () => {
     signOut(auth);
+  };
+  
+  const handleSearch = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const query = formData.get('query') as string;
+    if (query?.trim()) {
+      router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+    }
   };
 
   const getInitials = (name?: string | null) => {
@@ -55,7 +63,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+      <div className="container mx-auto flex h-16 items-center justify-between px-4 gap-4">
         <div className="flex items-center gap-6">
           <Link href="/" aria-label="Back to homepage">
             <Logo />
@@ -80,6 +88,13 @@ export function Header() {
               );
             })}
           </nav>
+        </div>
+        
+        <div className="flex-1 flex justify-center px-4 hidden md:flex">
+          <form onSubmit={handleSearch} className="relative w-full max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input name="query" placeholder="Search for products..." className="pl-10" />
+          </form>
         </div>
 
         <div className="flex items-center gap-2">
@@ -143,10 +158,6 @@ export function Header() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left">
-                <SheetHeader className="sr-only">
-                  <SheetTitle>Menu</SheetTitle>
-                  <SheetDescription>Main navigation menu</SheetDescription>
-                </SheetHeader>
                 <div className="p-4">
                   <div className="mb-8">
                     <SheetClose asChild>
@@ -155,6 +166,14 @@ export function Header() {
                       </Link>
                     </SheetClose>
                   </div>
+                  
+                  <SheetClose asChild>
+                    <form onSubmit={handleSearch} className="relative mb-4">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input name="query" placeholder="Search..." className="pl-10" />
+                    </form>
+                  </SheetClose>
+
                   <nav className="flex flex-col space-y-4">
                     {navLinks.map((link) => {
                       const isActive =

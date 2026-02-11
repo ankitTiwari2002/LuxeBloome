@@ -22,7 +22,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Separator } from '@/components/ui/separator';
 import { Loader2, Lock, CreditCard } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const formSchema = z.object({
   // Shipping
@@ -220,13 +219,13 @@ export default function CheckoutPage() {
                     <CardContent>
                         <div className="space-y-4">
                             {cartItems.map(item => {
-                                const image = PlaceHolderImages.find(p => p.id === item.images[0]);
+                                const image = item.images[0];
                                 return (
                                 <div key={item.id} className="flex justify-between items-center">
                                     <div className="flex items-center gap-4">
                                         {image && (
                                             <div className="relative h-16 w-16 overflow-hidden rounded-md border">
-                                            <Image src={image.imageUrl} alt={item.name} fill className="object-cover" />
+                                            <Image src={image} alt={item.name} fill className="object-cover" />
                                             </div>
                                         )}
                                         <div>

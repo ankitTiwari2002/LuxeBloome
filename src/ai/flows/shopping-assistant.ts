@@ -10,22 +10,8 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { products } from '@/lib/data';
 import { Product } from '@/lib/types';
-
-// Simple stringify for the prompt, can be improved later if needed.
-const productCatalogForPrompt = JSON.stringify(
-    products.map((p: Product) => ({
-        id: p.id,
-        name: p.name,
-        description: p.description,
-        price: p.price,
-        category: p.category,
-        tags: p.tags,
-    })),
-    null,
-    2
-);
+import { getAllProducts } from '@/lib/api';
 
 const ShoppingAssistantInputSchema = z.object({
   query: z.string().describe("The user's question about products or for recommendations."),
@@ -71,6 +57,20 @@ const shoppingAssistantFlow = ai.defineFlow(
     outputSchema: ShoppingAssistantOutputSchema,
   },
   async (input) => {
+    const products = await getAllProducts();
+    const productCatalogForPrompt = JSON.stringify(
+        products.map((p: Product) => ({
+            id: p.id,
+            name: p.name,
+            description: p.description,
+            price: p.price,
+            category: p.category,
+            tags: p.tags,
+        })),
+        null,
+        2
+    );
+
     const {output} = await prompt({ ...input, productCatalog: productCatalogForPrompt });
     return output!;
   }

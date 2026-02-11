@@ -16,7 +16,6 @@ import {
 } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { X, Minus, Plus, ShoppingBag } from 'lucide-react';
 
 export function CartDrawer() {
@@ -44,19 +43,18 @@ export function CartDrawer() {
             <ScrollArea className="flex-1">
               <div className="flex flex-col gap-6 p-6">
               {cartItems.map((item) => {
-                const image = PlaceHolderImages.find(p => p.id === item.images[0]);
+                const imageUrl = item.images[0];
                 return (
                   <div key={item.id} className="flex items-start justify-between gap-4">
                     <div className="flex items-center gap-4">
-                      {image && (
+                      {imageUrl && (
                         <div className="relative h-20 w-20 overflow-hidden rounded-md border">
                           <Link href={`/products/${item.id}`}>
                             <Image
-                              src={image.imageUrl}
+                              src={imageUrl}
                               alt={item.name}
                               fill
                               className="object-cover"
-                              data-ai-hint={image.imageHint}
                             />
                           </Link>
                         </div>
