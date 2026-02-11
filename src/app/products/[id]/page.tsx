@@ -16,12 +16,14 @@ import { Separator } from '@/components/ui/separator';
 import { ReviewStars } from '@/components/review-stars';
 import { ProductPurchaseForm } from '@/components/product-purchase-form';
 
+/*
 export async function generateStaticParams() {
   const products = await getAllProducts();
   return products.map((product) => ({
     id: product.id,
   }));
 }
+*/
 
 export default async function ProductPage({
   params,
