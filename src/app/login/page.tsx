@@ -64,7 +64,6 @@ export default function LoginPage() {
       await signInWithEmailAndPassword(auth, values.email, values.password);
       router.push(redirectUrl);
     } catch (error: any) {
-      console.error('Login error:', error);
       toast({
         title: 'Login Failed',
         description:
@@ -102,7 +101,6 @@ export default function LoginPage() {
 
       router.push(redirectUrl);
     } catch (error: any) {
-      console.error('Google Sign-In error:', error);
       let description = 'Could not sign in with Google. Please try again.';
       if (error.code === 'auth/operation-not-allowed') {
         description = 'Google Sign-In must be enabled in the Firebase console.';
