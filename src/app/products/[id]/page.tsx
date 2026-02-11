@@ -23,7 +23,8 @@ export async function generateStaticParams() {
   }));
 }
 
-export default async function ProductPage({ params }: { params: { id: string } }) {
+export default async function ProductPage(props: { params: { id: string } }) {
+  const { params } = props;
   const product = await getProductById(params.id);
 
   if (!product) {
