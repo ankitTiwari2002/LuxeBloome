@@ -9,7 +9,7 @@ import { Product } from '@/lib/types';
 import { ReviewStars } from './review-stars';
 import { useCart } from '@/context/cart-context';
 import { useToast } from '@/hooks/use-toast';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, CheckCircle } from 'lucide-react';
 
 type ProductCardProps = {
   product: Product;
@@ -23,8 +23,12 @@ export function ProductCard({ product }: ProductCardProps) {
     const handleAddToCart = () => {
         addToCart(product);
         toast({
-            title: "Added to cart",
-            description: `${product.name} has been added to your cart.`,
+            description: (
+              <div className="flex items-center gap-2 text-success font-medium">
+                <CheckCircle className="h-5 w-5" />
+                <span>Added successfully</span>
+              </div>
+            ),
         });
     }
 

@@ -15,6 +15,7 @@ import {
     AccordionItem,
     AccordionTrigger,
   } from '@/components/ui/accordion';
+import { CheckCircle } from 'lucide-react';
 
 type ProductPurchaseFormProps = {
     product: Product;
@@ -29,8 +30,12 @@ export function ProductPurchaseForm({ product }: ProductPurchaseFormProps) {
         // Here we could add logic to handle different variants
         addToCart(product);
         toast({
-            title: "Added to cart",
-            description: `${product.name} has been added to your cart.`,
+            description: (
+              <div className="flex items-center gap-2 text-success font-medium">
+                <CheckCircle className="h-5 w-5" />
+                <span>Added successfully</span>
+              </div>
+            ),
         });
     };
 
