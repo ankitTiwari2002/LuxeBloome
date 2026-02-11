@@ -29,7 +29,7 @@ function mapApiProductToProduct(apiProduct: ApiProduct): Product {
 
 export async function getAllProducts(): Promise<Product[]> {
   try {
-    const res = await fetch('https://fakestoreapi.com/products');
+    const res = await fetch('https://fakestoreapi.com/products', { cache: 'no-store' });
     if (!res.ok) {
       console.error('Failed to fetch products');
       return [];
@@ -44,7 +44,7 @@ export async function getAllProducts(): Promise<Product[]> {
 
 export async function getProductById(id: string): Promise<Product | undefined> {
   try {
-    const res = await fetch(`https://fakestoreapi.com/products/${id}`);
+    const res = await fetch(`https://fakestoreapi.com/products/${id}`, { cache: 'no-store' });
     if (!res.ok) {
       return undefined;
     }
